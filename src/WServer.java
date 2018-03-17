@@ -42,8 +42,6 @@ public class WServer {
                 corte = PeticionManipulada.length();
             }
             extension = PeticionManipulada.substring(inicio,corte);
-
-
         }
 
         return extension;
