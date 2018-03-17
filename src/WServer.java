@@ -43,6 +43,7 @@ public class WServer {
             }
             extension = PeticionManipulada.substring(inicio,corte);
 
+
         }
 
         return extension;
