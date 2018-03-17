@@ -147,7 +147,6 @@ public class WServer {
         }
 
         String retorno = ok + contentdisposition /*+ nombrefichero + extension +"\n"*/ + contenttype + cierre;
-
         return retorno;
     }
 
