@@ -45,7 +45,6 @@ public class WServer {
         }
 
         return extension;
-
     }
 
     public static String ObtenerNombre(String PeticionManipulada)
@@ -162,6 +161,4 @@ public class WServer {
             System.out.println(e);
         }
     }
-
-
 }
