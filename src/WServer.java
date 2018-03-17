@@ -1,5 +1,5 @@
 /*
- * --- TO DO ---
+ * --- TODO ---
  * 1. Implementar parametro ASCII
  * 2. Aplicar filtro por paremetros ?XXX=bool&YYY...
  * 3. Implementar .Zip
