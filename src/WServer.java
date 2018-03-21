@@ -14,8 +14,7 @@ import java.net.*;
 
 
 public class WServer {
-
-
+    
     public static String ObtenerParametros(String PeticionManipulada){
         String parametros = "";
         if (PeticionManipulada.contains("?"))
