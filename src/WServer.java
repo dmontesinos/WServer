@@ -65,14 +65,14 @@ public class WServer {
 
     public static void Respuesta(OutputStream os,String nFichero, String extension,String parametros)
     {
-        String cabecera = creaCabecera(nFichero,extension);
+        String cabecera;
         try {
-
             FileInputStream archivo = new FileInputStream(nFichero+extension);
-            os.write(cabecera.getBytes());
             int i;
-
-            if (parametros.isEmpty()){
+            if (parametros.isEmpty())
+            {
+                cabecera = creaCabecera(nFichero,extension);
+                os.write(cabecera.getBytes());
                 System.out.println("He entrado en FICHERO NORMAL");
                 System.out.println(parametros + " "+ extension);
                 while ((i = archivo.read()) != -1)
@@ -81,24 +81,33 @@ public class WServer {
                 }
 
             } else {
-                if (parametros.contains("asc=true"))
+                if (parametros.contains("?asc=true") || (parametros.contains("&asc=true")))
                 {
+
+                    cabecera = creaCabecera(nFichero,extension);
+                    os.write(cabecera.getBytes());
                     AsciiInputStream ascios = new AsciiInputStream(archivo);
                     System.out.println("He entrado en ASCII");
                     System.out.println(parametros + " "+ extension);
                     ascios.read();
                 }
-                if (parametros.contains("gzip=true")){
+                if (parametros.contains("?gzip=true") || (parametros.contains("&gzip=true"))){
+                    extension=extension + ".gz";
                     System.out.println("He entrado en GZIP");
-
+                    cabecera = creaCabecera(nFichero,extension);
+                    os.write(cabecera.getBytes());
                     os = new GZIPOutputStream(os);
                     while ((i = archivo.read()) != -1)
                     {
                         os.write(i);
                     }
+
                 }
                 if (parametros.contains("?zip=true") || parametros.contains("&zip=true")){
                     System.out.println("He entrado en ZIP!");
+                    extension=extension + ".zip";
+                    cabecera = creaCabecera(nFichero,extension);
+                    os.write(cabecera.getBytes());
                 }
             }
 
@@ -108,6 +117,7 @@ public class WServer {
 
         }catch(IOException e){
             Respuesta(os,"404",".html","");
+            System.out.println("Estamos en la excepcion pajaro");
         }
     }
 
@@ -158,9 +168,9 @@ public class WServer {
         {
             contenttype = "Content-Type: image/"+extension.substring(1) ;
         }
-        else if (extension.equals(".zip") || extension.equals(".gzip") || extension.equals(".xml"))
+        else if (extension.equals(".zip") || extension.equals(".gz") || extension.equals(".xml"))
         {
-            if (extension.equals(".gzip"))
+            if (extension.equals(".gz"))
             {
                 contenttype = "Content-Type: application/x-gzip";
             }
