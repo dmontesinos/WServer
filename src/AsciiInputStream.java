@@ -3,7 +3,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-//Este comentario es para comprobar que el commit&push se ha hecho bien
 //Por implementar
 public class AsciiInputStream extends FilterInputStream {
 
@@ -18,7 +17,7 @@ public class AsciiInputStream extends FilterInputStream {
         i=in.read();
         if(i==60)
         {
-            while(i = super.read())
+            while(i == super.read())
             {
 
             }
