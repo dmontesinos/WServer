@@ -5,15 +5,18 @@
  * 3. Implementar .Zip
  * 4. Implementar .Gzip
  * 5. Separar clases en ficheros.java
+ * 6. Problema con las cabeceras al pedir Comprimidos (los interpreta con la cabecera original y no los descarga)
  *
  */
 
 import java.io.*;
 import java.lang.ClassNotFoundException;
 import java.net.*;
+import java.util.zip.*;
 
 
 public class WServer {
+
 
     public static String ObtenerParametros(String PeticionManipulada){
         String parametros = "";
@@ -21,9 +24,9 @@ public class WServer {
         {
             int inicio = PeticionManipulada.indexOf("?");
             int corte = PeticionManipulada.length();
-            parametros = PeticionManipulada.substring(inicio+1,corte);
+            parametros = PeticionManipulada.substring(inicio,corte);
         }
-        System.out.printf(parametros);
+        //System.out.printf(parametros);
         return parametros;
     }
 
@@ -64,20 +67,38 @@ public class WServer {
     {
         String cabecera = creaCabecera(nFichero,extension);
         try {
-            FileInputStream archivo = new FileInputStream(nFichero+extension);
 
+            FileInputStream archivo = new FileInputStream(nFichero+extension);
             os.write(cabecera.getBytes());
             int i;
-            if (parametros.contains("asc=true"))
-            {
-                AsciiInputStream ascios = new AsciiInputStream(archivo);
-                System.out.println("He entrado en el if");
-                ascios.read();
-            }
-            else{
+
+            if (parametros.isEmpty()){
+                System.out.println("He entrado en FICHERO NORMAL");
+                System.out.println(parametros + " "+ extension);
                 while ((i = archivo.read()) != -1)
                 {
                     os.write(i);
+                }
+
+            } else {
+                if (parametros.contains("asc=true"))
+                {
+                    AsciiInputStream ascios = new AsciiInputStream(archivo);
+                    System.out.println("He entrado en ASCII");
+                    System.out.println(parametros + " "+ extension);
+                    ascios.read();
+                }
+                if (parametros.contains("gzip=true")){
+                    System.out.println("He entrado en GZIP");
+
+                    os = new GZIPOutputStream(os);
+                    while ((i = archivo.read()) != -1)
+                    {
+                        os.write(i);
+                    }
+                }
+                if (parametros.contains("?zip=true") || parametros.contains("&zip=true")){
+                    System.out.println("He entrado en ZIP!");
                 }
             }
 
