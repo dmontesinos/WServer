@@ -45,6 +45,7 @@ public class WServer {
         }
 
         return extension;
+
     }
 
     public static String ObtenerNombre(String PeticionManipulada)
@@ -68,10 +69,19 @@ public class WServer {
 
             os.write(cabecera.getBytes());
             int i;
-            while ((i = archivo.read()) != -1)
+            if (parametros.contains("asc=true"))
             {
-                os.write(i);
+                AsciiInputStream ascios = new AsciiInputStream(archivo);
+                System.out.println("He entrado en el if");
+                ascios.read();
             }
+            else{
+                while ((i = archivo.read()) != -1)
+                {
+                    os.write(i);
+                }
+            }
+
             archivo.close();
             os.flush();
             os.close();
@@ -161,4 +171,6 @@ public class WServer {
             System.out.println(e);
         }
     }
+
+
 }
