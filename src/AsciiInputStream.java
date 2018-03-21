@@ -26,5 +26,4 @@ public class AsciiInputStream extends FilterInputStream {
         System.out.println("Fin de lectura del fichero");
         return i;
     }
-
 }
