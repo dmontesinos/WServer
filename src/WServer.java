@@ -1,7 +1,6 @@
 /*
  * --- TODO ---
- * 1. Implementar parametro ASCII
- * 2. Implementar .Zip
+ * 1. Implementar .Zip
  */
 
 import java.io.*;
@@ -84,6 +83,8 @@ public class WServer {
      */
     public static void Respuesta(OutputStream os,String nFichero, String extension,String parametros)
     {
+        boolean canwrite=true;
+        boolean asciiread=false;
         boolean controlparametros = false;
         String cabecera;
         try {
@@ -99,14 +100,10 @@ public class WServer {
                 }
 
             } else {
-                //ASCII NO VA
                 if ( (parametros.contains("?asc=true") || (parametros.contains("&asc=true"))) && (extension.equals(".html")) )
                 {
-                    cabecera = creaCabecera(nFichero,extension);
-                    AsciiInputStream ascios = new AsciiInputStream(archivo);
-                    ascios.read();
                     controlparametros=true;
-
+                    asciiread=true;
                 }
                 if (parametros.contains("?gzip=true") || (parametros.contains("&gzip=true"))){
                     extension=extension + ".gz";
@@ -114,8 +111,6 @@ public class WServer {
                     os.write(cabecera.getBytes());
                     os = new GZIPOutputStream(os);
                     controlparametros=true;
-
-
                 }
                 //ZIP NO VA
                 if (parametros.contains("?zip=true") || parametros.contains("&zip=true")){
@@ -124,13 +119,20 @@ public class WServer {
                     os.write(cabecera.getBytes());
                     os = new ZipOutputStream(os);
                     controlparametros=true;
-
-
                 }
-
-                if (controlparametros) {
-                    while ((i = archivo.read()) != -1) {
-                        os.write(i);
+                if (controlparametros)
+                {
+                    if (asciiread){
+                        AsciiInputStream ainput = new AsciiInputStream(archivo);
+                        while ((i=ainput.read())!=-1){
+                            os.write(i);
+                        }
+                    }
+                    else {
+                        while ((i = archivo.read()) != -1)
+                        {
+                            os.write(i);
+                        }
                     }
                 }
                 else{
