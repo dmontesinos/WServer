@@ -83,10 +83,10 @@ public class WServer {
      */
     public static void Respuesta(OutputStream os,String nFichero, String extension,String parametros)
     {
-        boolean canwrite=true;
+        boolean compression=false;
         boolean asciiread=false;
         boolean controlparametros = false;
-        String cabecera;
+        String cabecera = null;
         try {
             FileInputStream archivo = new FileInputStream(nFichero+extension);
             int i;
@@ -105,16 +105,26 @@ public class WServer {
                     controlparametros=true;
                     asciiread=true;
                 }
-                if (parametros.contains("?gzip=true") || (parametros.contains("&gzip=true"))){
+                if (parametros.contains("?zip=true&gzip=true") || parametros.contains("&zip=true&gzip=true") || (parametros.contains("?gzip=true&zip=true")) || (parametros.contains("&gzip=true&zip=true"))){
+                    nFichero=nFichero+extension;
+                    extension=".gz.zip";
+                    cabecera = creaCabecera(nFichero,extension);
+                    os.write(cabecera.getBytes());
+                    os = new GZIPOutputStream(os);
+                    os = new ZipOutputStream(os);
+                    ZipEntry ze = new ZipEntry(nFichero);
+                    ((ZipOutputStream) os).putNextEntry(ze);
+                    controlparametros=true;
+                    compression=true;
+                } else if (parametros.contains("?gzip=true") || (parametros.contains("&gzip=true"))){
                     nFichero=nFichero+extension;
                     extension=".gz";
                     cabecera = creaCabecera(nFichero,extension);
                     os.write(cabecera.getBytes());
                     os = new GZIPOutputStream(os);
                     controlparametros=true;
-                }
-
-                if (parametros.contains("?zip=true") || parametros.contains("&zip=true")){
+                    compression=true;
+                } else if (parametros.contains("?zip=true") || parametros.contains("&zip=true")){
                     nFichero=nFichero+extension;
                     extension=".zip";
                     cabecera = creaCabecera(nFichero,extension);
@@ -123,12 +133,20 @@ public class WServer {
                     ZipEntry ze = new ZipEntry(nFichero);
                     ((ZipOutputStream) os).putNextEntry(ze);
                     controlparametros=true;
+                    compression=true;
+
                 }
+
+
+                
                 if (controlparametros)
                 {
                     if (asciiread){
-                        cabecera = creaCabecera(nFichero,extension);
-                        os.write(cabecera.getBytes());
+                        if(!compression)
+                        {
+                            cabecera = creaCabecera(nFichero,extension);
+                            os.write(cabecera.getBytes());
+                        }
                         AsciiInputStream ainput = new AsciiInputStream(archivo);
                         while ((i=ainput.read())!=-1){
                             os.write(i);
@@ -215,7 +233,7 @@ public class WServer {
         {
             contenttype = "Content-Type: image/"+extension.substring(1) ;
         }
-        else if (extension.equals(".zip") || extension.equals(".gz") || extension.equals(".xml"))
+        else if (extension.equals(".zip") || extension.equals(".gz") || extension.equals(".xml") || extension.equals(".gz.zip"))
         {
             if (extension.equals(".gz"))
             {
