@@ -113,18 +113,22 @@ public class WServer {
                     os = new GZIPOutputStream(os);
                     controlparametros=true;
                 }
-                //ZIP NO VA
+
                 if (parametros.contains("?zip=true") || parametros.contains("&zip=true")){
                     nFichero=nFichero+extension;
                     extension=".zip";
                     cabecera = creaCabecera(nFichero,extension);
                     os.write(cabecera.getBytes());
                     os = new ZipOutputStream(os);
+                    ZipEntry ze = new ZipEntry(nFichero);
+                    ((ZipOutputStream) os).putNextEntry(ze);
                     controlparametros=true;
                 }
                 if (controlparametros)
                 {
                     if (asciiread){
+                        cabecera = creaCabecera(nFichero,extension);
+                        os.write(cabecera.getBytes());
                         AsciiInputStream ainput = new AsciiInputStream(archivo);
                         while ((i=ainput.read())!=-1){
                             os.write(i);
