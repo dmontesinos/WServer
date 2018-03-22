@@ -106,7 +106,8 @@ public class WServer {
                     asciiread=true;
                 }
                 if (parametros.contains("?gzip=true") || (parametros.contains("&gzip=true"))){
-                    extension=extension + ".gz";
+                    nFichero=nFichero+extension;
+                    extension=".gz";
                     cabecera = creaCabecera(nFichero,extension);
                     os.write(cabecera.getBytes());
                     os = new GZIPOutputStream(os);
@@ -114,7 +115,8 @@ public class WServer {
                 }
                 //ZIP NO VA
                 if (parametros.contains("?zip=true") || parametros.contains("&zip=true")){
-                    extension=extension + ".zip";
+                    nFichero=nFichero+extension;
+                    extension=".zip";
                     cabecera = creaCabecera(nFichero,extension);
                     os.write(cabecera.getBytes());
                     os = new ZipOutputStream(os);
