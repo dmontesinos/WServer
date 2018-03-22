@@ -3,7 +3,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-//Por implementar
+/**Clase que implementa el Filtro Ascii para ficheros .html
+ *  @author Jose Antonio Cegarra Alonso
+ *  @author Daniel Montesions Santos
+ */
 public class AsciiInputStream extends FilterInputStream {
 
     public AsciiInputStream(InputStream in) {
@@ -14,17 +17,10 @@ public class AsciiInputStream extends FilterInputStream {
     @Override
     public int read() throws IOException {
         int i;
-        i=in.read();
-        if(i==60)
+        while ((i = in.read())!= -1 )
         {
-            while(i == super.read())
-            {
-
-            }
-
+            System.out.println(i);
         }
-        System.out.println("Fin de lectura del fichero");
-        return i;
+        return 0;
     }
-
 }

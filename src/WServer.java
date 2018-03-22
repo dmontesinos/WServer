@@ -1,23 +1,26 @@
 /*
  * --- TODO ---
  * 1. Implementar parametro ASCII
- * 2. Aplicar filtro por paremetros ?XXX=bool&YYY...
- * 3. Implementar .Zip
- * 4. Implementar .Gzip
- * 5. Separar clases en ficheros.java
- * 6. Problema con las cabeceras al pedir Comprimidos (los interpreta con la cabecera original y no los descarga)
- *
+ * 2. Implementar .Zip
  */
 
 import java.io.*;
-import java.lang.ClassNotFoundException;
 import java.net.*;
 import java.util.zip.*;
 
-
+/** Clase principal del WServer
+ *  Contiene la mayoria de los metodos necesarios para ejecutar el servidor
+ *  @author Jose Antonio Cegarra Alonso
+ *  @author Daniel Montesions Santos
+ *
+ */
 public class WServer {
 
 
+    /**Metodo que separa los parametros de la peticion
+     * @param PeticionManipulada InputStream Manipulado para un uso mas comodo de el
+     * @return parametros -> unica y exclusivamente los parametros (todos juntos) a partir del ? en caso de existir
+     */
     public static String ObtenerParametros(String PeticionManipulada){
         String parametros = "";
         if (PeticionManipulada.contains("?"))
@@ -26,10 +29,14 @@ public class WServer {
             int corte = PeticionManipulada.length();
             parametros = PeticionManipulada.substring(inicio,corte);
         }
-        //System.out.printf(parametros);
         return parametros;
     }
 
+
+    /**Metodo que separa la extension de los parametros y del nombre de fichero
+     * @param PeticionManipulada InputStream Manipulado para un uso mas comodo de el
+     * @return extension -> la extension del fichero incluyendo el " ."
+     */
     public static String ObtenerExtension(String PeticionManipulada)
     {
         String extension = "";
@@ -50,6 +57,11 @@ public class WServer {
 
     }
 
+
+    /**Metodo que obtiene el nombre del fichero solicitado a partir del InputStream
+     * @param PeticionManipulada InputStream Manipulado para un uso mas comodo de el
+     * @return PeticionManipulada -> nombre del fichero
+     */
     public static String ObtenerNombre(String PeticionManipulada)
     {
         if (PeticionManipulada.contains("."))
@@ -63,6 +75,13 @@ public class WServer {
 
     }
 
+    /**Metodo principal de la clase WServer que controla la escritura del OutputStream,
+     * el fichero que se nos pide,los filtros que se nos pide y redireccionamiento en caso de error
+     * @param os OutputStream como canal donde escribiremos la salida byte a byte
+     * @param nFichero Nombre del fichero el cual queremos pasar por el OutputStream
+     * @param extension Extension del fichero para tratar de una manera u otra la cabecera
+     * @param parametros Parametros que modifican el OutputStream antes de entregarlo al cliente
+     */
     public static void Respuesta(OutputStream os,String nFichero, String extension,String parametros)
     {
         boolean controlparametros = false;
@@ -74,29 +93,23 @@ public class WServer {
             {
                 cabecera = creaCabecera(nFichero,extension);
                 os.write(cabecera.getBytes());
-                System.out.println("He entrado en FICHERO NORMAL");
-                System.out.println(parametros + " "+ extension);
                 while ((i = archivo.read()) != -1)
                 {
                     os.write(i);
                 }
 
             } else {
-                if (parametros.contains("?asc=true") || (parametros.contains("&asc=true")))
+                //ASCII NO VA
+                if ( (parametros.contains("?asc=true") || (parametros.contains("&asc=true"))) && (extension.equals(".html")) )
                 {
-
                     cabecera = creaCabecera(nFichero,extension);
-                    os.write(cabecera.getBytes());
                     AsciiInputStream ascios = new AsciiInputStream(archivo);
-                    System.out.println("He entrado en ASCII");
-                    System.out.println(parametros + " "+ extension);
                     ascios.read();
                     controlparametros=true;
 
                 }
                 if (parametros.contains("?gzip=true") || (parametros.contains("&gzip=true"))){
                     extension=extension + ".gz";
-                    System.out.println("He entrado en GZIP");
                     cabecera = creaCabecera(nFichero,extension);
                     os.write(cabecera.getBytes());
                     os = new GZIPOutputStream(os);
@@ -104,8 +117,8 @@ public class WServer {
 
 
                 }
+                //ZIP NO VA
                 if (parametros.contains("?zip=true") || parametros.contains("&zip=true")){
-                    System.out.println("He entrado en ZIP!");
                     extension=extension + ".zip";
                     cabecera = creaCabecera(nFichero,extension);
                     os.write(cabecera.getBytes());
@@ -131,10 +144,13 @@ public class WServer {
 
         }catch(IOException e){
             Respuesta(os,"404",".html","");
-            System.out.println("Estamos en la excepcion pajaro");
         }
     }
 
+    /**Metodo que controla el Socket de entrada para leer la peticion del InputStream
+     * @param serverSocket Socket del puerto que queremos leer las peticiones
+     * @return pRecibida -> String con la peticion ya manipulada para que la intrepretacion de esta sea mas sencilla
+     */
     public static String Peticion(Socket serverSocket)
     {
         BufferedReader in = null;
@@ -151,6 +167,10 @@ public class WServer {
 
     }
 
+    /**Metodo que trocea la primera cadena del InputStream para que mas tarde pueda ser troceada en partes mas pequeñas
+     * @param Cadena InputStream traducido a String para poder trocearlo
+     * @return nombreFichero-> Peticion de la cadena sin separar (fichero.extension?parametros)
+     */
     public static String ManipularCadena(String Cadena)
     {
         String nombreFichero = Cadena.substring(5);
@@ -161,6 +181,11 @@ public class WServer {
         return nombreFichero;
     }
 
+    /**Metodo que crea la cabecera que se pasara al navegador del cliente
+     * @param nombreFichero nombre del fichero solicitado
+     * @param extension extension del fichero solicitado
+     * @return retorno -> cabecera ya lista para escribir byte a byte en el OutputStream
+     */
     public static String creaCabecera(String nombreFichero, String extension)
     {
         String ok= "HTTP/1.1 200 OK\n";
@@ -201,7 +226,10 @@ public class WServer {
         return retorno;
     }
 
-    public static void main(String args[]) throws IOException, ClassNotFoundException{
+    /**Metodo principal en el cual se crean los threads para la concurrencia del programa y la creacion del socket
+     * @param args no se usan en este programa
+     */
+    public static void main(String args[]) {
         ServerSocket Servicios;
         Socket serverSocket;
         try {
