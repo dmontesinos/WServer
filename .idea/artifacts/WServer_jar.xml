@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="WServer:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/WServer_jar</output-path>
+    <root id="archive" name="WServer.jar">
+      <element id="module-output" name="Proyectos" />
+    </root>
+  </artifact>
+</component>

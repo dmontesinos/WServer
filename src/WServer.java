@@ -18,7 +18,7 @@ public class WServer {
 
     /**Metodo que separa los parametros de la peticion
      * @param PeticionManipulada InputStream Manipulado para un uso mas comodo de el
-     * @return parametros -> unica y exclusivamente los parametros (todos juntos) a partir del ? en caso de existir
+     * @return parametros: unica y exclusivamente los parametros (todos juntos) a partir del ? en caso de existir
      */
     public static String ObtenerParametros(String PeticionManipulada){
         String parametros = "";
@@ -34,7 +34,7 @@ public class WServer {
 
     /**Metodo que separa la extension de los parametros y del nombre de fichero
      * @param PeticionManipulada InputStream Manipulado para un uso mas comodo de el
-     * @return extension -> la extension del fichero incluyendo el " ."
+     * @return extension: la extension del fichero incluyendo el " ."
      */
     public static String ObtenerExtension(String PeticionManipulada)
     {
@@ -59,7 +59,7 @@ public class WServer {
 
     /**Metodo que obtiene el nombre del fichero solicitado a partir del InputStream
      * @param PeticionManipulada InputStream Manipulado para un uso mas comodo de el
-     * @return PeticionManipulada -> nombre del fichero
+     * @return PeticionManipulada: nombre del fichero
      */
     public static String ObtenerNombre(String PeticionManipulada)
     {
@@ -137,8 +137,6 @@ public class WServer {
 
                 }
 
-
-                
                 if (controlparametros)
                 {
                     if (asciiread){
@@ -148,7 +146,7 @@ public class WServer {
                             os.write(cabecera.getBytes());
                         }
                         AsciiInputStream ainput = new AsciiInputStream(archivo);
-                        while ((i=ainput.read())!=-1){
+                        while ((i=ainput.read())!= -1){
                             os.write(i);
                         }
                     }
@@ -175,7 +173,7 @@ public class WServer {
 
     /**Metodo que controla el Socket de entrada para leer la peticion del InputStream
      * @param serverSocket Socket del puerto que queremos leer las peticiones
-     * @return pRecibida -> String con la peticion ya manipulada para que la intrepretacion de esta sea mas sencilla
+     * @return pRecibida: String con la peticion ya manipulada para que la intrepretacion de esta sea mas sencilla
      */
     public static String Peticion(Socket serverSocket)
     {
@@ -195,7 +193,7 @@ public class WServer {
 
     /**Metodo que trocea la primera cadena del InputStream para que mas tarde pueda ser troceada en partes mas pequeñas
      * @param Cadena InputStream traducido a String para poder trocearlo
-     * @return nombreFichero-> Peticion de la cadena sin separar (fichero.extension?parametros)
+     * @return nombreFichero: Peticion de la cadena sin separar (fichero.extension?parametros)
      */
     public static String ManipularCadena(String Cadena)
     {
@@ -210,7 +208,7 @@ public class WServer {
     /**Metodo que crea la cabecera que se pasara al navegador del cliente
      * @param nombreFichero nombre del fichero solicitado
      * @param extension extension del fichero solicitado
-     * @return retorno -> cabecera ya lista para escribir byte a byte en el OutputStream
+     * @return retorno: cabecera ya lista para escribir byte a byte en el OutputStream
      */
     public static String creaCabecera(String nombreFichero, String extension)
     {
@@ -257,12 +255,19 @@ public class WServer {
      */
     public static void main(String args[]) {
         ServerSocket Servicios;
-        Socket serverSocket;
+        String prefijo = args[0];
+        int puerto = Integer.parseInt(args[1]);
+
         try {
-            Servicios = new ServerSocket(9411);
-            while(true)
-            {
-                new Proceso(Servicios.accept()).start();
+            prefijo = args[0];
+            if (args[0] != prefijo){
+                System.out.println("Debes especificar los parámetros correctamente.");
+            } else{
+                Servicios = new ServerSocket(puerto);
+                while(true)
+                {
+                    new Proceso(Servicios.accept()).start();
+                }
             }
         }
         catch (IOException e) {
