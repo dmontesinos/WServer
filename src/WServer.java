@@ -134,7 +134,6 @@ public class WServer {
                     ((ZipOutputStream) os).putNextEntry(ze);
                     controlparametros=true;
                     compression=true;
-
                 }
 
                 if (controlparametros)
@@ -255,25 +254,27 @@ public class WServer {
      */
     public static void main(String args[]) {
         ServerSocket Servicios;
-        String prefijo = args[0];
-        int puerto = Integer.parseInt(args[1]);
+        int puerto;
+
+        if ((args.length <= 1) || args.length > 2 || (!((args[0].equals("-p") && (Integer.parseInt(args[1]) > 0))))){
+            System.out.println("Parámetros inválidos. Utiliza '-p puerto'");
+            System.out.println("Por defecto se va a lanzar el servidor en el puerto 9411");
+            puerto = 9411;
+        } else {
+            puerto = Integer.parseInt(args[1]);
+        }
 
         try {
-            prefijo = args[0];
-            if (args[0] != prefijo){
-                System.out.println("Debes especificar los parámetros correctamente.");
-            } else{
-                Servicios = new ServerSocket(puerto);
-                while(true)
-                {
-                    new Proceso(Servicios.accept()).start();
-                }
+            Servicios = new ServerSocket(puerto);
+            System.out.println("Servidor abierto en el puerto: "+puerto);
+
+            while(true)
+            {
+                new Proceso(Servicios.accept()).start();
             }
         }
         catch (IOException e) {
             System.out.println(e);
         }
     }
-
-
 }
